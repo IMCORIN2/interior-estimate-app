@@ -1,0 +1,10 @@
+export default function Home() {
+    return (
+        <main
+            style={{
+                minHeight: '100vh',
+                backgroundColor: 'white',
+            }}
+        ></main>
+    );
+}
