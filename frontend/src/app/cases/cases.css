@@ -1,0 +1,159 @@
+.case-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fafafa;
+    font-family: 'Pretendard', sans-serif;
+}
+
+/* 카드들을 그리드로 정렬 */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 376.59px);
+    gap: 1.5rem;
+    justify-content: center;
+    width: calc(376.59px * 3 + 1.5rem * 2);
+    margin: 0 auto;
+}
+
+/* 개별 카드 */
+.case-card {
+    background-color: white;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.case-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.case-info {
+    padding: 1rem;
+}
+
+.case-info div span {
+    margin-right: 8px;
+    color: #666;
+    font-size: 13px;
+}
+
+.case-info h4 {
+    font-size: 15px;
+    font-weight: normal;
+}
+
+.case-info h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.case-info p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.grid-button {
+    display: flex;
+    gap: 10px;
+}
+
+.grid-button button {
+    background-color: #ffffff;
+    color: #565656;
+    border: 1px solid #565656;
+    padding: 3px 12px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: all 0.2s ease; /* hover 전환 부드럽게 */
+}
+
+.grid-button button:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.dropdown-box {
+    border: 1px solid black;
+    padding: 10px 10px;
+}
+.location-modal {
+    /* html 흐름에서 빠져나와 '겹쳐서' 표시 */
+    position: absolute;
+    border: 0.1px solid #c3c3c3;
+    background-color: white;
+    width: 15rem;
+    height: 8rem;
+    margin-top: 3px;
+}
+.dropdown-location {
+    margin-top: 7px;
+    margin-bottom: 7px;
+}
+.dropdown-location select {
+    padding: 5px 10px;
+}
+
+.size-modal {
+    position: absolute;
+    border: 0.1px solid #c3c3c3;
+    background-color: white;
+    width: 15rem;
+    height: 8rem;
+    margin-top: 3px;
+}
+.space-modal {
+    position: absolute;
+    border: 0.1px solid #c3c3c3;
+    background-color: white;
+    width: 15rem;
+    height: 18rem;
+    margin-top: 3px;
+}
+.budget-div {
+    position: relative;
+}
+.budget-modal {
+    position: absolute;
+    border: 0.1px solid #c3c3c3;
+    background-color: white;
+    width: 15rem;
+    height: 13rem;
+    top: calc(100% + 4px);
+}
+.all-modal {
+    position: absolute;
+    border: 0.1px solid #c3c3c3;
+    background-color: white;
+    display: flex;
+    width: 21rem;
+    height: 100vh;
+    flex-direction: column;
+    z-index: 100;
+}
+.all-modal span {
+    border-bottom: 1px solid black;
+}
+.all-modal button {
+    cursor: pointer;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); /* 어두운 반투명 배경 */
+    z-index: 99;
+}
+.filter-btn {
+    height: 10rem;
+    background-color: white;
+    color: #000000;
+    border: 0.1px solid black;
+}
+.all-modal-menu {
+    padding: 100px;
+}
