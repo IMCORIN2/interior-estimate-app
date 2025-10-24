@@ -1,0 +1,27 @@
+.company-container {
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    justify-content: center; /* 세로 중앙 */
+    align-items: center; /* 가로 중앙 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+    height: 100vh; /* 화면 꽉 차게 */
+    background-color: #fafafa;
+    font-family: 'Pretendard', sans-serif;
+    color: #333;
+    gap: 1rem; /* 요소 간 간격 */
+}
+
+.company-card {
+    background-color: white;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 376.59px);
+    gap: 1.5rem;
+    justify-content: center;
+    width: calc(376.59px * 3 + 1.5rem * 2);
+    margin: 0 auto;
+}
