@@ -1,74 +1,97 @@
 'use client';
 import { useState } from 'react';
-import { chatbotFlow } from './chatbotFlow';
+import { flows } from './chatbotFlow';
+import styles from './ChatBot.module.css';
+
+type Msg = { role: 'bot' | 'user'; text: string };
 
 export default function ChatBot() {
-    const [stepIndex, setStepIndex] = useState(0);
-    const [answers, setAnswers] = useState<{ [key: number]: string[] }>({});
+    const [currentFlow, setCurrentFlow] = useState('main'); // 현재 흐름 (main, wallpaper, floor 등)
+    const [stepIndex, setStepIndex] = useState(0); // 현재 질문 단계
+    const [messages, setMessages] = useState<Msg[]>([{ role: 'bot', text: flows.main.question }]);
 
-    const currentStep = chatbotFlow[stepIndex];
+    const flow = Array.isArray(flows[currentFlow]) ? flows[currentFlow] : [flows[currentFlow]];
+    const currentStep = flow[stepIndex];
 
-    const handleSelect = (option: string) => {
-        const currentAnswers = answers[currentStep.id] || [];
-        const isMultiple = currentStep.multiple;
+    const handleOptionClick = (option: any) => {
+        const userText = typeof option === 'string' ? option : option.label;
+        setMessages((prev) => [...prev, { role: 'user', text: userText }]);
 
-        const updated = isMultiple
-            ? currentAnswers.includes(option)
-                ? currentAnswers.filter((a) => a !== option)
-                : [...currentAnswers, option]
-            : [option];
+        // 흐름 전환 (도배/장판 or 바닥 등)
+        if (typeof option === 'object' && option.next && flows[option.next]) {
+            setCurrentFlow(option.next);
+            setStepIndex(0);
+            setMessages((prev) => [...prev, { role: 'bot', text: flows[option.next][0].question }]);
+            return;
+        }
 
-        setAnswers({
-            ...answers,
-            [currentStep.id]: updated,
-        });
+        // 현재 흐름의 다음 질문으로 이동
+        if (stepIndex + 1 < flow.length) {
+            setStepIndex(stepIndex + 1);
+            const nextQ = flow[stepIndex + 1];
+            setMessages((prev) => [...prev, { role: 'bot', text: nextQ.question }]);
+        } else {
+            setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
+        }
     };
 
-    const handleNext = () => {
-        if (stepIndex < chatbotFlow.length - 1) {
+    const handleInputSubmit = (value: string) => {
+        if (!value.trim()) return;
+        setMessages((prev) => [...prev, { role: 'user', text: value }]);
+        if (stepIndex + 1 < flow.length) {
+            const next = flow[stepIndex + 1];
             setStepIndex(stepIndex + 1);
+            setMessages((prev) => [...prev, { role: 'bot', text: next.question }]);
         } else {
-            console.log('최종 답변:', answers);
+            setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
         }
     };
 
     return (
-        <div style={{ width: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <div style={{ background: '#f3f3f3', padding: '1rem', borderRadius: '8px' }}>
-                <p>
-                    <strong>챗봇:</strong> {currentStep.question}
-                </p>
-                <div>
-                    {currentStep.options.map((option) => (
-                        <button
-                            key={option}
-                            onClick={() => handleSelect(option)}
-                            style={{
-                                margin: '0.25rem',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '4px',
-                                background: answers[currentStep.id]?.includes(option) ? '#4caf50' : '#e0e0e0',
-                                color: answers[currentStep.id]?.includes(option) ? 'white' : 'black',
-                            }}
-                        >
-                            {option}
+        <div className={styles.chatContainer}>
+            {messages.map((msg, i) => (
+                <div key={i} className={msg.role === 'bot' ? styles.botMessage : styles.userMessage}>
+                    {msg.text}
+                </div>
+            ))}
+
+            {/* 옵션 버튼 or 입력란 표시 */}
+            {currentStep?.options ? (
+                <div className={styles.optionGroup}>
+                    {currentStep.options.map((opt: any, idx: number) => (
+                        <button key={idx} className={styles.optionButton} onClick={() => handleOptionClick(opt)}>
+                            {typeof opt === 'string' ? opt : opt.label}
                         </button>
                     ))}
                 </div>
-                <button
-                    onClick={handleNext}
-                    style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem 1rem',
-                        background: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                    }}
-                >
-                    다음
-                </button>
-            </div>
+            ) : currentStep?.input ? (
+                <InputBox onSubmit={handleInputSubmit} />
+            ) : null}
         </div>
+    );
+}
+
+// 🔹 간단한 입력 컴포넌트
+function InputBox({ onSubmit }: { onSubmit: (val: string) => void }) {
+    const [value, setValue] = useState('');
+    return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                onSubmit(value);
+                setValue('');
+            }}
+            className={styles.inputForm}
+        >
+            <input
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="입력하세요..."
+                className={styles.inputBox}
+            />
+            <button type="submit" className={styles.submitButton}>
+                보내기
+            </button>
+        </form>
     );
 }
