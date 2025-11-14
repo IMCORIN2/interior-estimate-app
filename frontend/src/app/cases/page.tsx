@@ -86,19 +86,21 @@ export default function CasePage() {
                         }}
                     ></div>
                     <div className="all-modal">
-                        <h3>필터</h3>
-                        <span>zz</span>
-                        <button
-                            onClick={() => {
-                                setallHover(false);
-                                setfilterLocation(false);
-                                setfilterSize(false);
-                                setfilterSpace(false);
-                                setfilterBudget(false);
-                            }}
-                        >
-                            닫기 버튼
-                        </button>
+                        <div className="close-btn-div">
+                            <h3>필터</h3>
+                            <button
+                                className="close-btn"
+                                onClick={() => {
+                                    setallHover(false);
+                                    setfilterLocation(false);
+                                    setfilterSize(false);
+                                    setfilterSpace(false);
+                                    setfilterBudget(false);
+                                }}
+                            >
+                                x
+                            </button>
+                        </div>
                         <button className="filter-btn" onClick={() => setfilterLocation(!filterLocation)}>
                             지역
                         </button>

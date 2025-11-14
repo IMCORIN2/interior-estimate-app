@@ -1,12 +1,38 @@
+/* 전체 컨테이너 */
 .case-container {
-    padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
-    background-color: #fafafa;
-    font-family: 'Pretendard', sans-serif;
+    padding: 2rem;
+    background-color: #fff;
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    color: #222;
 }
 
-/* 카드들을 그리드로 정렬 */
+/* 상단 버튼 영역 */
+.grid-button {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.grid-button button {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.grid-button button:hover {
+    background-color: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* 카드 그리드 — 기존 유지 */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(3, 376.59px);
@@ -16,7 +42,7 @@
     margin: 0 auto;
 }
 
-/* 개별 카드 */
+/* 개별 카드 — 기존 유지 */
 .case-card {
     background-color: white;
     overflow: hidden;
@@ -44,116 +70,173 @@
     font-weight: normal;
 }
 
-.case-info h2 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
 .case-info p {
     color: #666;
     font-size: 0.9rem;
 }
 
-.grid-button {
-    display: flex;
-    gap: 10px;
+/* 🔹 모달들 (버튼 바로 아래에 표시되도록 복원) */
+.location-modal,
+.size-modal,
+.space-modal,
+.budget-modal {
+    position: absolute;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    width: 15rem;
+    margin-top: 3px;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 50;
 }
 
-.grid-button button {
-    background-color: #ffffff;
-    color: #565656;
-    border: 1px solid #565656;
-    padding: 3px 12px;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: none;
-    transition: all 0.2s ease; /* hover 전환 부드럽게 */
-}
-
-.grid-button button:hover {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-.dropdown-box {
-    border: 1px solid black;
-    padding: 10px 10px;
-}
 .location-modal {
-    /* html 흐름에서 빠져나와 '겹쳐서' 표시 */
-    position: absolute;
-    border: 0.1px solid #c3c3c3;
-    background-color: white;
-    width: 15rem;
     height: 8rem;
-    margin-top: 3px;
 }
-.dropdown-location {
-    margin-top: 7px;
-    margin-bottom: 7px;
-}
-.dropdown-location select {
-    padding: 5px 10px;
-}
-
 .size-modal {
-    position: absolute;
-    border: 0.1px solid #c3c3c3;
-    background-color: white;
-    width: 15rem;
     height: 8rem;
-    margin-top: 3px;
 }
 .space-modal {
-    position: absolute;
-    border: 0.1px solid #c3c3c3;
-    background-color: white;
-    width: 15rem;
     height: 18rem;
-    margin-top: 3px;
 }
+.budget-modal {
+    height: 13rem;
+}
+
 .budget-div {
     position: relative;
 }
-.budget-modal {
-    position: absolute;
-    border: 0.1px solid #c3c3c3;
-    background-color: white;
-    width: 15rem;
-    height: 13rem;
-    top: calc(100% + 4px);
-}
+
+/* 🔹 모든 필터 모달 (왼쪽 정렬로 변경) */
 .all-modal {
-    position: absolute;
-    border: 0.1px solid #c3c3c3;
-    background-color: white;
-    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 21rem;
     height: 100vh;
+    background-color: #fff;
+    border-right: 1px solid #e5e5e5;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
+    display: flex;
     flex-direction: column;
+    padding: 2rem;
     z-index: 100;
+    animation: slideInLeft 0.3s ease;
 }
+
+/* 🔸 상단 ‘필터 + X’ 영역 */
+.all-modal .close-btn-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #ddd; /* 실선 구분선 */
+}
+
+.all-modal .close-btn-div h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: #222;
+}
+
+/* 닫기(X) 버튼 */
+.all-modal .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #444;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    line-height: 1;
+}
+
+.all-modal .close-btn:hover {
+    color: #000;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 .all-modal span {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #000;
+    display: block;
+    padding-bottom: 0.5rem;
 }
+
 .all-modal button {
     cursor: pointer;
 }
+
+/* 오버레이 */
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4); /* 어두운 반투명 배경 */
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 99;
 }
+
+/* 필터 버튼 */
 .filter-btn {
-    height: 10rem;
-    background-color: white;
-    color: #000000;
-    border: 0.1px solid black;
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    border-radius: 6px;
+    text-align: left;
+    transition: all 0.2s ease;
 }
+
+.filter-btn:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+/* 전체 모달 하단 버튼 영역 */
 .all-modal-menu {
-    padding: 100px;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.all-modal-menu button {
+    flex: 1;
+    padding: 0.8rem 0;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.all-modal-menu button:first-child {
+    background-color: #f5f5f5;
+    color: #444;
+}
+
+.all-modal-menu button:first-child:hover {
+    background-color: #eaeaea;
+}
+
+.all-modal-menu button:last-child {
+    background-color: #111;
+    color: #fff;
+}
+
+.all-modal-menu button:last-child:hover {
+    background-color: #000;
 }
