@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { EstimateAnswer } from './estimateAnswer.entity';
+import { RequestToCompany } from './requestToCompany.entity';
 
 @Entity()
 export class EstimateRequest {
@@ -21,4 +22,7 @@ export class EstimateRequest {
 
   @OneToMany(() => EstimateAnswer, (ans) => ans.request, { cascade: true })
   answers: EstimateAnswer[];
+
+  @OneToMany(() => RequestToCompany, (rct) => rct.request)
+  requestToCompanies: RequestToCompany[];
 }

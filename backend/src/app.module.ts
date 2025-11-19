@@ -9,6 +9,9 @@ import { EstimateRequest } from './entities/estimateRequest.entity';
 import { EstimateAnswer } from './entities/estimateAnswer.entity';
 import { CaseImage } from './entities/caseImage.entity';
 import { Company } from './entities/company.entity';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { EstimateModule } from './estimate/estimate.module';
 
 @Module({
   imports: [
@@ -35,6 +38,12 @@ import { Company } from './entities/company.entity';
       CaseImage,
       Company,
     ]),
+
+    UsersModule,
+
+    AuthModule,
+
+    EstimateModule,
   ],
   controllers: [AppController],
   providers: [AppService],
