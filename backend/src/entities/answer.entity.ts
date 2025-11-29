@@ -2,21 +2,13 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EstimateRequest } from './estimateRequest.entity';
 
 @Entity()
-export class EstimateAnswer {
+export class Answer {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  question: string;
+  content: string;
 
-  @Column()
-  answer: string;
-
-  @Column()
-  orderIndex: number;
-
-  @ManyToOne(() => EstimateRequest, (req) => req.answers, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => EstimateRequest, (req) => req.answers)
   request: EstimateRequest;
 }
