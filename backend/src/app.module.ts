@@ -6,12 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Case } from './entities/case.entity';
 import { EstimateRequest } from './entities/estimateRequest.entity';
-import { EstimateAnswer } from './entities/estimateAnswer.entity';
+import { Answer } from './entities/answer.entity';
 import { CaseImage } from './entities/caseImage.entity';
 import { Company } from './entities/company.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EstimateModule } from './estimate/estimate.module';
+import { RequestToCompany } from './entities/requestToCompany.entity';
+import { CompanyReply } from './entities/companyReply.entity';
+import { Question } from './entities/question.entity';
 
 @Module({
   imports: [
@@ -34,9 +37,12 @@ import { EstimateModule } from './estimate/estimate.module';
       User,
       Case,
       EstimateRequest,
-      EstimateAnswer,
+      Answer,
       CaseImage,
       Company,
+      RequestToCompany,
+      CompanyReply,
+      Question,
     ]),
 
     UsersModule,

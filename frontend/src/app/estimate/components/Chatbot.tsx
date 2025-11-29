@@ -12,7 +12,18 @@ export default function ChatBot() {
 
     const flow = Array.isArray(flows[currentFlow]) ? flows[currentFlow] : [flows[currentFlow]];
     const currentStep = flow[stepIndex];
+    // 질문이 끝남과 동시에 서버로 챗봇 결과 전송하는 함수
+    function finishFlow(userText: string) {
+        const finalMsg = [
+            ...messages,
+            { role: 'user', text: userText },
+            { role: 'bot', text: '모든 질문이 끝났습니다.' },
+        ];
+        const answers = makeAnswers(finalMsg);
+        saveEstimateRequest(answers).then((res) => console.log('견적 저장 완료!', res));
+    }
 
+    // 선택된 옵션 제출 함수
     const handleOptionClick = (option: any) => {
         const userText = typeof option === 'string' ? option : option.label;
         setMessages((prev) => [...prev, { role: 'user', text: userText }]);
@@ -31,10 +42,15 @@ export default function ChatBot() {
             const nextQ = flow[stepIndex + 1];
             setMessages((prev) => [...prev, { role: 'bot', text: nextQ.question }]);
         } else {
+            // 마지막 질문
             setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
+
+            // 질문이 끝남과 동시에 서버로 챗봇 결과 전송
+            finishFlow(userText);
         }
     };
 
+    // 직접 적은 옵션 제출하는 함수
     const handleInputSubmit = (value: string) => {
         if (!value.trim()) return;
         setMessages((prev) => [...prev, { role: 'user', text: value }]);
@@ -71,7 +87,7 @@ export default function ChatBot() {
     );
 }
 
-// 🔹 간단한 입력 컴포넌트
+// 간단한 입력 컴포넌트
 function InputBox({ onSubmit }: { onSubmit: (val: string) => void }) {
     const [value, setValue] = useState('');
     return (
@@ -94,4 +110,37 @@ function InputBox({ onSubmit }: { onSubmit: (val: string) => void }) {
             </button>
         </form>
     );
+}
+
+// Chatbot 질문 -> 백엔드 DB 형태로 변환
+function makeAnswers(messages) {
+    const answer = [];
+    for (let i = 0; i < messages.length - 1; i++) {
+        if (messages[i].role == 'bot' && messages[i + 1]?.role == 'user') {
+            answer.push({
+                question: messages[i].text,
+                answer: messages[i + 1].text,
+            });
+        }
+    }
+    return answer;
+}
+
+// 정제된 질문 -> DB에 저장
+async function saveEstimateRequest(answers) {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:3000/estimate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ answers }),
+    });
+
+    if (!res.ok) {
+        throw new Error('견적 저장 실패');
+    }
+
+    return res.json();
 }
