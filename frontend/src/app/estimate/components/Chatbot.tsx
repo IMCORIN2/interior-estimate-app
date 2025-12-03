@@ -1,65 +1,128 @@
+// src/ChatBot.tsx
+
 'use client';
 import { useState } from 'react';
-import { flows } from './chatbotFlow';
+import { flows, ChatFlow, FlowStep, OptionItem } from './chatbotFlow';
 import styles from './ChatBot.module.css';
 
 type Msg = { role: 'bot' | 'user'; text: string };
 
+// 서버 전송 DTO와 동일한 구조
+type AnswerItem = {
+    questionId: number;
+    answerId: number | null; // 선택지 없을 경우 (자유 입력) null
+    answerContent: string;
+};
+
+// 임시 함수: 백엔드 API 호출
+async function saveEstimateRequest(answers: AnswerItem[]) {
+    // 실제 백엔드 로직에 맞게 URL과 토큰을 수정하세요.
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:3000/estimate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ answers }), // ID 기반 DTO 전송
+    });
+    if (!res.ok) {
+        throw new Error('견적 저장 실패');
+    }
+
+    return res.json();
+}
+
 export default function ChatBot() {
-    const [currentFlow, setCurrentFlow] = useState('main'); // 현재 흐름 (main, wallpaper, floor 등)
-    const [stepIndex, setStepIndex] = useState(0); // 현재 질문 단계
-    const [messages, setMessages] = useState<Msg[]>([{ role: 'bot', text: flows.main.question }]);
+    const [currentFlow, setCurrentFlow] = useState<keyof ChatFlow>('main');
+    const [stepIndex, setStepIndex] = useState(0);
+    const [messages, setMessages] = useState<Msg[]>([{ role: 'bot', text: (flows.main as FlowStep).question }]);
+
+    // 💡 ID 기반 답변 저장 State
+    const [answers, setAnswers] = useState<AnswerItem[]>([]);
 
     const flow = Array.isArray(flows[currentFlow]) ? flows[currentFlow] : [flows[currentFlow]];
-    const currentStep = flow[stepIndex];
+    const currentStep = flow[stepIndex] as FlowStep;
+
     // 질문이 끝남과 동시에 서버로 챗봇 결과 전송하는 함수
-    function finishFlow(userText: string) {
-        const finalMsg = [
-            ...messages,
-            { role: 'user', text: userText },
-            { role: 'bot', text: '모든 질문이 끝났습니다.' },
-        ];
-        const answers = makeAnswers(finalMsg);
+    function finishFlow() {
+        setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
+
+        // answers state에 저장된 ID 기반 데이터를 서버로 전송
+        console.log('최종 전송 데이터:', answers);
         saveEstimateRequest(answers).then((res) => console.log('견적 저장 완료!', res));
     }
 
-    // 선택된 옵션 제출 함수
-    const handleOptionClick = (option: any) => {
+    // 💡 선택된 옵션 제출 함수 (ID 캡처 로직 추가)
+    const handleOptionClick = (option: string | OptionItem) => {
+        // 1. 선택된 옵션 정보 추출
         const userText = typeof option === 'string' ? option : option.label;
+        const optionId = typeof option === 'object' ? option.optionId || null : null;
+        const questionId = currentStep.id;
+
+        // 2. 답변 기록 (answers State 업데이트)
+        setAnswers((prev) => [
+            ...prev,
+            {
+                questionId: questionId,
+                answerId: optionId, // 선택지의 ID (ID 기반)
+                answerContent: userText, // 사용자가 선택한 텍스트
+            },
+        ]);
+
+        // 3. UI 메시지 업데이트
         setMessages((prev) => [...prev, { role: 'user', text: userText }]);
 
-        // 흐름 전환 (도배/장판 or 바닥 등)
-        if (typeof option === 'object' && option.next && flows[option.next]) {
-            setCurrentFlow(option.next);
+        // 4. 흐름 전환 및 다음 단계 이동 로직
+        const nextFlow = typeof option === 'object' && option.next && flows[option.next] ? option.next : null;
+
+        if (nextFlow) {
+            // 흐름 전환 발생
+            const nextFlowStep = (flows[nextFlow] as FlowStep[])[0];
+            setCurrentFlow(nextFlow);
             setStepIndex(0);
-            setMessages((prev) => [...prev, { role: 'bot', text: flows[option.next][0].question }]);
+            setMessages((prev) => [...prev, { role: 'bot', text: nextFlowStep.question }]);
             return;
         }
 
-        // 현재 흐름의 다음 질문으로 이동
         if (stepIndex + 1 < flow.length) {
+            // 현재 흐름 내 다음 질문으로 이동
             setStepIndex(stepIndex + 1);
-            const nextQ = flow[stepIndex + 1];
+            const nextQ = flow[stepIndex + 1] as FlowStep;
             setMessages((prev) => [...prev, { role: 'bot', text: nextQ.question }]);
         } else {
-            // 마지막 질문
-            setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
-
-            // 질문이 끝남과 동시에 서버로 챗봇 결과 전송
-            finishFlow(userText);
+            // 마지막 질문 완료 (Finish)
+            finishFlow();
         }
     };
 
-    // 직접 적은 옵션 제출하는 함수
+    // 💡 직접 적은 옵션 제출하는 함수 (ID 캡처 로직 추가)
     const handleInputSubmit = (value: string) => {
         if (!value.trim()) return;
+
+        const questionId = currentStep.id;
+
+        // 1. 답변 기록 (answers State 업데이트) - 자유 입력이므로 answerId는 null
+        setAnswers((prev) => [
+            ...prev,
+            {
+                questionId: questionId,
+                answerId: null, // 자유 입력
+                answerContent: value, // 사용자가 직접 입력한 텍스트
+            },
+        ]);
+
+        // 2. UI 메시지 업데이트
         setMessages((prev) => [...prev, { role: 'user', text: value }]);
+
+        // 3. 흐름 제어 로직
         if (stepIndex + 1 < flow.length) {
-            const next = flow[stepIndex + 1];
+            const nextQ = flow[stepIndex + 1] as FlowStep;
             setStepIndex(stepIndex + 1);
-            setMessages((prev) => [...prev, { role: 'bot', text: next.question }]);
+            setMessages((prev) => [...prev, { role: 'bot', text: nextQ.question }]);
         } else {
-            setMessages((prev) => [...prev, { role: 'bot', text: '모든 질문이 끝났습니다.' }]);
+            // 마지막 질문 완료 (Finish)
+            finishFlow();
         }
     };
 
@@ -74,11 +137,19 @@ export default function ChatBot() {
             {/* 옵션 버튼 or 입력란 표시 */}
             {currentStep?.options ? (
                 <div className={styles.optionGroup}>
-                    {currentStep.options.map((opt: any, idx: number) => (
-                        <button key={idx} className={styles.optionButton} onClick={() => handleOptionClick(opt)}>
-                            {typeof opt === 'string' ? opt : opt.label}
-                        </button>
-                    ))}
+                    {currentStep.options.map((opt: string | OptionItem, idx: number) => {
+                        // string 타입의 옵션이 있다면 OptionItem으로 변환 (id는 null로 처리)
+                        const item =
+                            typeof opt === 'string'
+                                ? { label: opt, optionId: null as any } // string 옵션은 optionId를 null로 처리
+                                : opt;
+
+                        return (
+                            <button key={idx} className={styles.optionButton} onClick={() => handleOptionClick(item)}>
+                                {item.label}
+                            </button>
+                        );
+                    })}
                 </div>
             ) : currentStep?.input ? (
                 <InputBox onSubmit={handleInputSubmit} />
@@ -110,37 +181,4 @@ function InputBox({ onSubmit }: { onSubmit: (val: string) => void }) {
             </button>
         </form>
     );
-}
-
-// Chatbot 질문 -> 백엔드 DB 형태로 변환
-function makeAnswers(messages) {
-    const answer = [];
-    for (let i = 0; i < messages.length - 1; i++) {
-        if (messages[i].role == 'bot' && messages[i + 1]?.role == 'user') {
-            answer.push({
-                question: messages[i].text,
-                answer: messages[i + 1].text,
-            });
-        }
-    }
-    return answer;
-}
-
-// 정제된 질문 -> DB에 저장
-async function saveEstimateRequest(answers) {
-    const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:3000/estimate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ answers }),
-    });
-
-    if (!res.ok) {
-        throw new Error('견적 저장 실패');
-    }
-
-    return res.json();
 }

@@ -21,7 +21,5 @@ import { JwtAuthGuard } from './jwt-auth.guard';
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {
-  constructor() {
-    console.log('auth 들어옴');
-  }
+  constructor() {}
 }

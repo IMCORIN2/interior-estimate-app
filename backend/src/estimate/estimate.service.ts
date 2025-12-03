@@ -7,12 +7,13 @@ import { Repository } from 'typeorm';
 import { Answer } from 'src/entities/answer.entity';
 import { Question } from 'src/entities/question.entity';
 import { User } from 'src/entities/user.entity';
+import { RequestAnswer } from 'src/entities/requestAnswer.entity';
 
 @Injectable()
 export class EstimateService {
   constructor(
     @InjectRepository(EstimateRequest)
-    private readonly reqRepo: Repository<EstimateRequest>,
+    private readonly estimateReqRepo: Repository<EstimateRequest>,
 
     @InjectRepository(Answer)
     private readonly ansRepo: Repository<Answer>,
@@ -22,47 +23,55 @@ export class EstimateService {
 
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+
+    @InjectRepository(RequestAnswer)
+    private readonly reqAnsRepo: Repository<RequestAnswer>,
   ) {}
 
   async saveRequest(userId: number, dto: CreateEstimateDto) {
     console.log('서비스', dto);
-    const ans = dto.answers;
 
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new Error('유저없음');
-    const request = this.reqRepo.create({
+    const request = this.estimateReqRepo.create({
       user,
-      questions: [],
-      answers: [],
+      requestAnswers: [],
     });
+    // for문 밖 임시 저장용 배열
+    const requestAnswersTemp = [];
 
-    for (let i = 0; i < ans.length; i++) {
-      // question이 존재하지 않는 경우 저장
-      let question = await this.queRepo.findOne({
-        where: { content: ans[i].question },
+    for (const item of dto.answers) {
+      // question 객체 생성
+      const questionRef = this.queRepo.create({
+        id: item.questionId,
+        content: 'TEMP_QUESTION_CONTENT',
+      });
+      const savedQuestion = await this.queRepo.save(questionRef);
+      // answer 객체 생성
+      let answerRef = null;
+      const answerId = item.answerId;
+      if (answerId) {
+        answerRef = this.ansRepo.create({
+          id: item.answerId,
+          content: item.answerContent,
+        });
+        console.log(answerRef, 'answerRef');
+        const savedAnswer = await this.ansRepo.save(answerRef);
+      }
+
+      const requestAnswer = this.reqAnsRepo.create({
+        question: questionRef,
+        answer: answerRef,
+        answerContent: item.answerContent,
       });
 
-      if (!question) {
-        question = this.queRepo.create({ content: ans[i].question });
-        await this.queRepo.save(question);
-      }
-      // answer이 존재하지 않는 경우 저장
-      let answer = await this.ansRepo.findOne({
-        where: {
-          content: ans[i].answer,
-        },
-      });
-
-      if (!answer) {
-        answer = this.ansRepo.create({ content: ans[i].answer });
-        await this.ansRepo.save(answer);
-      }
-      // 질문과 답변이 준비되면 request에 추가
-      request.questions.push(question);
-      request.answers.push(answer);
+      requestAnswersTemp.push(requestAnswer);
     }
-    // request 저장 (for 문 안에 넣어야하는지 밖에 넣어야 하는지 생각해보기)
-    const savedRequest = await this.reqRepo.save(request);
+
+    request.requestAnswers = requestAnswersTemp;
+    console.log('=========', request, '=========');
+
+    const savedRequest = await this.estimateReqRepo.save(request);
     // JSON 반환
     return { success: true, request: savedRequest };
   }

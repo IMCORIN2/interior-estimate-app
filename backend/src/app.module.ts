@@ -15,6 +15,7 @@ import { EstimateModule } from './estimate/estimate.module';
 import { RequestToCompany } from './entities/requestToCompany.entity';
 import { CompanyReply } from './entities/companyReply.entity';
 import { Question } from './entities/question.entity';
+import { RequestAnswer } from './entities/requestAnswer.entity';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { Question } from './entities/question.entity';
       RequestToCompany,
       CompanyReply,
       Question,
+      RequestAnswer,
     ]),
 
     UsersModule,

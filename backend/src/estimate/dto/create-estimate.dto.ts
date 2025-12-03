@@ -1,6 +1,7 @@
 export class CreateEstimateDto {
   answers: {
-    question: string;
-    answer: string;
+    questionId: number;
+    answerId: number | null;
+    answerContent: string;
   }[];
 }

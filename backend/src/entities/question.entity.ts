@@ -1,14 +1,19 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { EstimateRequest } from './estimateRequest.entity';
+import { Answer } from './answer.entity';
 
 @Entity()
 export class Question {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
-  @Column()
-  content: string;
-
-  @ManyToOne(() => EstimateRequest, (req) => req.questions)
-  estimateRequest: EstimateRequest;
+  @Column('text', { nullable: true })
+  content: string | null;
 }
