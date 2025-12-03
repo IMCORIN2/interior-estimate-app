@@ -17,10 +17,10 @@ export class RequestToCompany {
   @Column({ default: 'pending' })
   status: 'pending' | 'replied' | 'rejected';
 
-  @ManyToOne(() => EstimateRequest, (req) => req.requestToCompanies, {
-    onDelete: 'CASCADE',
-  })
-  request: EstimateRequest;
+  // @ManyToOne(() => EstimateRequest, (req) => req.requestToCompanies, {
+  //   onDelete: 'CASCADE',
+  // })
+  // request: EstimateRequest;
 
   @ManyToOne(() => Company, (company) => company.requestToCompanies, {
     onDelete: 'CASCADE',

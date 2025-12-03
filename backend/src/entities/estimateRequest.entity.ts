@@ -9,6 +9,7 @@ import { User } from './user.entity';
 import { Answer } from './answer.entity';
 import { RequestToCompany } from './requestToCompany.entity';
 import { Question } from './question.entity';
+import { RequestAnswer } from './requestAnswer.entity';
 
 @Entity()
 export class EstimateRequest {
@@ -21,12 +22,9 @@ export class EstimateRequest {
   @ManyToOne(() => User, (user) => user.requests, { onDelete: 'CASCADE' })
   user: User;
 
-  @OneToMany(() => Answer, (ans) => ans.request, { cascade: true })
-  answers: Answer[];
+  // @OneToMany(() => RequestToCompany, (rct) => rct.request)
+  // requestToCompanies: RequestToCompany[];
 
-  @OneToMany(() => RequestToCompany, (rct) => rct.request)
-  requestToCompanies: RequestToCompany[];
-
-  @OneToMany(() => Question, (q) => q.estimateRequest, { cascade: true })
-  questions: Question[];
+  @OneToMany(() => RequestAnswer, (ra) => ra.request, { cascade: ['insert'] })
+  requestAnswers: RequestAnswer[];
 }

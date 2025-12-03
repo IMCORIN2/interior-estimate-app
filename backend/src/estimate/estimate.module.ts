@@ -6,10 +6,17 @@ import { Answer } from 'src/entities/answer.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Question } from 'src/entities/question.entity';
+import { RequestAnswer } from 'src/entities/requestAnswer.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EstimateRequest, Answer, Question, User]),
+    TypeOrmModule.forFeature([
+      EstimateRequest,
+      Answer,
+      Question,
+      User,
+      RequestAnswer,
+    ]),
   ],
   controllers: [EstimateController],
   providers: [EstimateService],
