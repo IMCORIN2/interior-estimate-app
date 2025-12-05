@@ -39,4 +39,12 @@ export class UsersService {
   async findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
   }
+
+  // Role Guard 만들면서 사용
+  async findOneWithRoles(userId: number) {
+    return await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
+  }
 }
